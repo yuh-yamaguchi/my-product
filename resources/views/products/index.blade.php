@@ -11,19 +11,17 @@
     <h2>検索条件で絞り込み</h2>
     
     <form action="{{ route('products.index') }}" method="GET" class="row g-3">
-
         <div class="col-sm-12 col-md-3">
             <input type="text" name="search" class="form-control" placeholder="商品名" value="{{ request('search') }}">
         </div>
         <div class="col-sm-12 col-md-3">
-            <select class="form-control" name="company_id" data-toggle="select" value="{{ request('company') }}">
+            <select name="company_id" class="form-control">
                 <option value="">全て</option>
-                    @foreach ($company_lists as $company_list)
-                    <option value="{{ $company_list->getCompany() }}" @if($company=='{{ $company_list->getCompany() }}') selected @endif>{{ $company_list->company->company_name }}</option>
-                    @endforeach
+                @foreach($company_lists as $key => $value)
+                <option value="{{ $key }}" @if($company == $key) selected="selected" @endif>{{ $value }}</option>
+                @endforeach
             </select>
         </div>
-
         <div class="col-sm-12 col-md-1">
             <button class="btn btn-outline-secondary" type="submit">絞り込み</button>
         </div>
@@ -31,8 +29,6 @@
 </div>
 
 <a href="{{ route('products.index') }}" class="btn btn-success mt-3">検索条件を元に戻す</a>
-
-
     <div class="products mt-5">
         <h2>商品情報</h2>
         <table class="table table-striped">

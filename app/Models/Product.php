@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 
 class Product extends Model
@@ -31,8 +32,42 @@ class Product extends Model
 
     public function getCompany()
     {
-    return $this->company_id;
+        return $this->company;
+    }
+        
+
+    public static function createProduct($requestData){
+
+        $product = new Product();
+        $product->product_name = $requestData['product_name'];
+        $product->company_id = $requestData['company_id'];
+        $product->price = $requestData['price'];
+        $product->stock = $requestData['stock'];
+        $product->comment = $requestData['comment'];
+        
+        if (isset($requestData['img_path'])) {
+            $img_path = $requestData['img_path']->store('products', 'public');
+            $product->img_path = 'storage/' . $img_path;
+        }
+
+        $product->save();
+        return $product;
     }
     
+
+   public function scopeSearch($query, $search, $company)
+    {
+        if ($search) {
+        $query->where('product_name', 'LIKE', "%{$search}%");
+        }
+
+        if ($company) {
+        $query->whereHas('company', function ($query) use ($company) {
+            $query->where('company_id', $company);
+        });
+        }
+
+        return $query;
+    }
 
 }

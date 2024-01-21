@@ -45,7 +45,7 @@
                             <div class="mb-3">
                                 <label for="img_path" class="form-label">商品画像:</label>
                                 <input id="img_path" type="file" name="img_path" class="form-control">
-                                <img src="{{ asset($product->img_path) }}" alt="商品画像" width="100" class="product-image">
+                                <img src="{{ asset($product->img_path) }}" alt="商品画像" width="200" class="product-image">
                             </div>
 
                             <button type="submit" class="btn btn-primary">変更内容で更新する</button>

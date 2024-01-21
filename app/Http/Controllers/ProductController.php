@@ -7,85 +7,52 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+
+    public function index(Request $request){
+
+        $products = Product::search($request->search, $request->company_id)->paginate(10);
+        $company_lists = Company::pluck('company_name', 'id');
+        $company = $request->company_id;
     
-    public function index(Request $request)
-    {   
-        $query = Product::query();
-        $company_lists = Product::all();
-
-        if($search = $request->search){
-            $query->where('product_name', 'LIKE', "%{$search}%");
-        }
-
-        if(!empty($company = $request->company_id)){
-           $query->where('company_id', 'LIKE', $company);
-        }
-        
-        $products = $query->paginate(10);
-
-        $list = array(
-            'products' => $products,
-            'company_lists' => $company_lists,
-            'company' => $company,
-        );
-        
-        return view('products.index', compact('products','company_lists','company'));
+        return view('products.index', compact('products', 'company_lists', 'company'));
     }
 
-    public function create()
-    {
+    public function create(){
+
         $companies = Company::all();
         return view('products.create', compact('companies'));
     }
 
-    public function store(ProductRequest $request)
-    {
-        // $request->validate([
-        //     'product_name' => 'required',
-        //     'company_id' => 'required',
-        //     'price' => 'required',
-        //     'stock' => 'required',
-        //     'comment' => 'nullable',
-        //     'img_path' => 'nullable|image|max:2048',
-        // ]);
+    public function store(ProductRequest $request){
 
-        $product = $request->validated();
-
-        $product = new Product([
-            'product_name' => $request->get('product_name'),
-            'company_id' => $request->get('company_id'),
-            'price' => $request->get('price'),
-            'stock' => $request->get('stock'),
-            'comment' => $request->get('comment'),
-        ]);
-
-        if($request->hasFile('img_path')){ 
-            $filename = $request->img_path->getClientOriginalName();
-            $filePath = $request->img_path->storeAs('products', $filename, 'public');
-            $product->img_path = '/storage/' . $filePath;
+        DB::beginTransaction();
+        try {
+            Product::createProduct($request->all());
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back();
         }
-
-        $product->save();
         return redirect('products');
-
     }
+    
 
-    public function show(Product $product)
-    {
+    public function show(Product $product){
+
         return view('products.show', ['product' => $product]);
     }
 
-    public function edit(Product $product)
-    {
+    public function edit(Product $product){
+
         $companies = Company::all();
         return view('products.edit', compact('product', 'companies'));
     }
 
-    public function update(ProductRequest $request, Product $product)
-    {
+    public function update(ProductRequest $request, Product $product){
 
         $product->product_name = $request->product_name;
         $product->company_id = $request->company_id;
@@ -109,8 +76,8 @@ class ProductController extends Controller
 
     }
 
-    public function destroy(Product $product)
-    {
+    public function destroy(Product $product){
+
         $product->delete();
         return redirect('/products');
     }

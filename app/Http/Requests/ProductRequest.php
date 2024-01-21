@@ -32,4 +32,27 @@ class ProductRequest extends FormRequest
             'img_path' => 'nullable|image|max:2048',
         ];
     }
+
+    public function attributes()
+    {
+        return [
+            'product_name' => '商品名',
+            'company_id' => '会社ID',
+            'price' => '価格',
+            'stock' => '在庫',
+            'comment' => 'コメント',
+            'img_path' => '画像',
+        ];
+    }
+
+    public function messages() {
+        return [
+            'product_name.required' => ':attributeは必須項目です。',
+            'product_name.max' => ':attributeは:max字以内で入力してください。',
+            'price.required' => ':attributeは必須項目です。',
+            'price.max' => ':attributeは:max字以内で入力してください。',
+            'comment.required' => ':attributeはURL形式で入力してください。',
+            'comment.max' => ':attributeは:max字以内で入力してください。',
+        ];
+    }
 }
