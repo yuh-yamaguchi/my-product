@@ -12,6 +12,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'product_name',
         'price',
         'stock',
@@ -44,7 +45,9 @@ class Product extends Model
         $product->price = $requestData['price'];
         $product->stock = $requestData['stock'];
         $product->comment = $requestData['comment'];
-        
+
+        // idフィールドは自動インクリメントなので、明示的に設定する必要はありません。
+
         if (isset($requestData['img_path'])) {
             $img_path = $requestData['img_path']->store('products', 'public');
             $product->img_path = 'storage/' . $img_path;
@@ -55,7 +58,7 @@ class Product extends Model
     }
     
 
-   public function scopeSearch($query, $search, $company)
+   public function scopeSearch($query, $search, $company, $priceMin, $priceMax, $stockMin, $stockMax)
     {
         if ($search) {
         $query->where('product_name', 'LIKE', "%{$search}%");
@@ -65,6 +68,22 @@ class Product extends Model
         $query->whereHas('company', function ($query) use ($company) {
             $query->where('company_id', $company);
         });
+        }
+
+        if ($priceMin) {
+            $query->where('price', '>=', $priceMin);
+        }
+        
+        if ($priceMax) {
+            $query->where('price', '<=', $priceMax);
+        }
+        
+        if ($stockMin) {
+            $query->where('stock', '>=', $stockMin);
+        }
+        
+        if ($stockMax) {
+            $query->where('stock', '<=', $stockMax);
         }
 
         return $query;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Models\Product;
 use App\Models\Company;
@@ -27,20 +27,8 @@ class ProductController extends Controller
     {
         $products = Product::search($request->search, $request->company_id, $request->price_min, $request->price_max, $request->stock_min, $request->stock_max)
         ->paginate(10);
-    $company_lists = Company::pluck('company_name', 'id');
-    $company_id = $request->company_id;
-
-    $products = $products->map(function ($product) {
-        return [
-            'id' => $product->id ?? '',
-            'product_name' => $product->product_name ?? '',
-            'company_name' => $product->company->company_name ?? '',
-            'price' => $product->price ?? '',
-            'stock' => $product->stock ?? '',
-            'comment' => $product->comment ?? '',
-            'img_path' => asset($product->img_path) ?? '',
-        ];
-    });
+        $company_lists = Company::pluck('company_name', 'id');
+        $company_id = $request->company_id; 
     
         return response()->json([
             'products' => $products,
@@ -102,17 +90,8 @@ class ProductController extends Controller
 
     public function destroy(Product $product){
 
-        // $product->delete();
-        // return redirect('/products');
-
-
-        try {
-            $product->delete();
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => '削除中にエラーが発生しました。'], 500);
-        }
-        
+        $product->delete();
+        return redirect('/products');
     }
     
     
